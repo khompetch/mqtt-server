@@ -1,4 +1,5 @@
 var mosca = require('mosca');
+const axios = require('axios');
 require('dotenv').config();
 var settings = {
     port: 1883,
@@ -26,4 +27,10 @@ server.on('clientDisconnected', function (client) {
 server.on('published', function (packet, client) {
     console.log(packet);
     console.log('Published', packet.payload.toString());
+
+    axios.post('http://host.aor.in.th:8080/api/v1/innc5qQQw1phWEMTdVlT/telemetry',
+        {
+            name: 'Flavio'
+        }
+    );
 });
