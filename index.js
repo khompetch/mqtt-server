@@ -14,7 +14,8 @@ function setup() {
     console.log('Mosca server is up and running (auth)')
 }
 var authenticate = function (client, username, password, callback) {
-    var authorized = (username === process.env.MQTT_USERNAME && password.toString() === process.env.MQTT_PASSWORD);
+    var authorized = (username === password.toString());
+    //var authorized = (username === process.env.MQTT_USERNAME && password.toString() === process.env.MQTT_PASSWORD);
     if (authorized) client.user = username;
     callback(null, authorized);
 }
@@ -25,12 +26,21 @@ server.on('clientDisconnected', function (client) {
     console.log('Client Disconnected:', client.id);
 });
 server.on('published', function (packet, client) {
-    console.log(packet);
-    console.log('Published', packet.payload.toString());
+    if(!client) return;
+    //console.log(packet);
+    //console.log('Published', packet.payload.toString());
 
-    axios.post('http://host.aor.in.th:8080/api/v1/innc5qQQw1phWEMTdVlT/telemetry',
-        {
-            name: 'Flavio'
-        }
-    );
+    var stringBuf = packet.payload.toString();
+    var jsonpayload = JSON.parse(stringBuf);
+    console.log(jsonpayload);
+
+    axios.post('http://host.aor.in.th:8080/api/v1/'+client.user+'/telemetry',
+        jsonpayload
+    )
+        .then(function (response) {
+            //console.log(response);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
 });
